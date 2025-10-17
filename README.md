@@ -1,105 +1,80 @@
-# Dokumentasi GeoJSON – Kertawangi, Cisarua (KBB)
+# Dataset Jalan Kertawangi – Cisarua, KBB
 
-Repositori ini menyertakan berkas `kertawangi.geojson` yang berisi jaringan jalan di wilayah Kertawangi, Kecamatan Cisarua, Kabupaten Bandung Barat, Provinsi Jawa Barat. Dokumen ini menjelaskan struktur GeoJSON, header yang digunakan, serta sintaks penting di dalam berkas tersebut.
+Dokumen ini merangkum isi berkas `kertawangi.geojson`, yaitu jaringan jalan yang dipetakan di Desa Kertawangi, Kecamatan Cisarua, Kabupaten Bandung Barat (Provinsi Jawa Barat).
 
-## Ringkasan Lokasi
+## Ikhtisar Dataset
 
-- **Wilayah**: Desa/Kelurahan Kertawangi, Kecamatan Cisarua, Kabupaten Bandung Barat.
-- **Koordinat perkiraan**: garis bujur 107.55°–107.57° BT, garis lintang -6.81°– -6.79° LS.
-- **Sumber data**: OpenStreetMap melalui *overpass-turbo* per tanggal `2025-10-17T01:36:58Z`.
+- **Sumber**: OpenStreetMap (ekspor *overpass-turbo* `2025-10-17T01:36:58Z`).
+- **Jumlah fitur**: 272 ruas jalan dan jalur.
+- **Tipe geometri**: seluruhnya `LineString` (polyline).
+- **Batas koordinat (bbox)**: `[107.5475062, -6.819106]` hingga `[107.5815871, -6.7696358]` (lon/lat WGS84).
+- **Wilayah administrasi**: Kertawangi & sekitarnya di Kecamatan Cisarua, Kabupaten Bandung Barat.
 
-## Pengantar GeoJSON
+## Statistik Utama
 
-GeoJSON adalah format berbasis JSON untuk menyimpan dan bertukar data geospasial. Beberapa konsep kunci:
+| Statistik                         | Nilai |
+|-----------------------------------|------:|
+| Total fitur `Feature`             |   272 |
+| Fitur dengan nama jalan (`name`)  |    21 |
+| Jenis `highway` berbeda           |     9 |
+| Nilai `surface` terdata           |  `asphalt` (5), `earth` (1) |
+| Fitur dengan atribut `lanes`      |    13 |
+| Fitur bertanda `motorcar=private` |    24 |
 
-- **FeatureCollection**: struktur utama yang menampung sekumpulan *feature*.
-- **Feature**: representasi satu entitas spasial (misalnya satu ruas jalan) yang terdiri dari `properties` (atribut) dan `geometry` (bentuk geometri).
-- **Geometry**: tipe geometri seperti `Point`, `LineString`, `Polygon`. Dalam berkas ini mayoritas berupa `LineString` karena merepresentasikan jalur/jalan.
-- **Koordinat**: selalu berformat `[longitude, latitude]` dalam sistem koordinat WGS84 (EPSG:4326).
+Distribusi kategori `highway`:
 
-Struktur umum GeoJSON:
+| Kategori       | Jumlah | Persentase ± |
+|----------------|-------:|-------------:|
+| `residential`  |    126 |       46.3% |
+| `service`      |     80 |       29.4% |
+| `living_street`|     25 |        9.2% |
+| `path`         |     15 |        5.5% |
+| `tertiary`     |      8 |        2.9% |
+| `primary`      |      5 |        1.8% |
+| `footway`      |      5 |        1.8% |
+| `unclassified` |      4 |        1.5% |
+| `track`        |      4 |        1.5% |
 
-```json
-{
-	"type": "FeatureCollection",
-	"features": [
-		{
-			"type": "Feature",
-			"properties": { ... },
-			"geometry": {
-				"type": "LineString",
-				"coordinates": [ [lon, lat], ... ]
-			}
-		}
-	]
-}
-```
+## Atribut Penting pada `properties`
 
-## Header dan Metadata pada `kertawangi.geojson`
+- `@id` – ID resmi objek di OSM (contoh `way/318678694`).
+- `highway` – tipe jalan sesuai skema OSM (`residential`, `service`, dll.).
+- `name` – nama ruas (tersedia pada 21 fitur; contoh: *Jalan Kolonel Masturi*, *Gang Masjid 2*, *Jalur Pendakian Gunung Burangrang via Komando*).
+- `motorcar` / `motorcycle` – pembatasan akses kendaraan bermotor pada sebagian jalur fasilitas.
+- `access` – aturan akses umum (misal `private`).
+- `lanes` – jumlah lajur (hingga 4 pada ruas utama).
+- `surface` – material permukaan (aspal mendominasi ruas berlabel).
+- Atribut lain yang kadang muncul: `oneway`, `bridge`, `layer`, `ref`, `maxspeed`, `foot`.
 
-| Field         | Nilai contoh                                                   | Penjelasan                                                                                       |
-|---------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
-| `type`        | `FeatureCollection`                                            | Menandakan berkas berisi kumpulan feature.                                                        |
-| `generator`   | `overpass-turbo`                                              | Alat yang digunakan untuk mengekstraksi data dari OpenStreetMap.                                  |
-| `copyright`   | `The data included ... under ODbL.`                           | Informasi lisensi ODbL dari OpenStreetMap.                                                        |
-| `timestamp`   | `2025-10-17T01:36:58Z`                                        | Waktu ekspor data terakhir.                                                                       |
-| `features`    | Array berisi objek `Feature`                                  | Setiap feature mewakili satu ruas jalan atau elemen infrastruktur lain di Kertawangi.              |
-
-## Struktur Feature
-
-Setiap feature memiliki dua bagian utama:
-
-1. **`properties`** – atribut non-spasial seperti:
-	 - `@id`: ID unik OSM (contoh `way/318678694`).
-	 - `name`: nama jalan (misal `Jalan Kolonel Masturi`).
-	 - `highway`: klasifikasi jalan (`primary`, `residential`, `service`, dll.).
-	 - Atribut lain: `lanes`, `surface`, `oneway`, `ref`, hingga pengaturan khusus (misal `cycleway:both`).
-2. **`geometry`** – representasi spasial:
-	 - `type`: mayoritas `LineString` (jalur polyline). Ada kemungkinan `Point` atau `Polygon` bila dataset diperluas.
-	 - `coordinates`: daftar titik `[longitude, latitude]` yang membentuk geometri.
-
-Contoh feature dari `kertawangi.geojson`:
+## Contoh Fitur Representatif
 
 ```json
 {
-	"type": "Feature",
-	"properties": {
-		"@id": "way/318678694",
-		"highway": "primary",
-		"name": "Jalan Kolonel Masturi",
-		"lanes": "2",
-		"surface": "asphalt"
-	},
-	"geometry": {
-		"type": "LineString",
-		"coordinates": [
-			[107.557082, -6.8171332],
-			[107.5572749, -6.816342],
-			[107.5577432, -6.8145058],
-			[107.558808, -6.8133731],
-			[107.5692355, -6.8090175],
-			[107.5701576, -6.8043291]
-		]
-	}
+  "type": "Feature",
+  "properties": {
+    "@id": "way/318678694",
+    "highway": "primary",
+    "name": "Jalan Kolonel Masturi",
+    "lanes": "2",
+    "surface": "asphalt",
+    "source": "GPS"
+  },
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [107.557082, -6.8171332],
+      [107.5572749, -6.816342],
+      [107.558808, -6.8133731],
+      [107.5692355, -6.8090175],
+      [107.5701576, -6.8043291]
+    ]
+  }
 }
 ```
 
-### Catatan Sintaks `LineString`
+## Cara Menggunakan Dataset
+1. **Visualisasi Peta** – Muat `kertawangi.geojson` di QGIS/ArcGIS atau peta berbasis Leaflet/Mapbox untuk melihat jaringan jalan secara langsung.
+2. **Analisis** – Gunakan pustaka GIS (Turf.js, PostGIS, GeoPandas) untuk menghitung panjang ruas, mengelompokkan berdasarkan `highway`, atau mengevaluasi aksesibilitas.
+3. **Integrasi Backend** – Paket ini kompatibel dengan payload `LineString` pada API Go Fiber (`POST /api/polylines`). Pilih fitur tertentu, ubah menjadi struktur GeoJSON minimal, kemudian kirimkan ke endpoint.
 
-- Koordinat disusun berurutan sepanjang jalur jalan dari titik awal hingga akhir.
-- Nilai berupa angka desimal (floating point) dalam derajat.
-- *LineString* minimal memiliki dua titik; semakin banyak titik, semakin detail kurva jalan di peta.
-
-## Ringkasan Jenis Jalan di Dataset
-
-Walaupun dataset sangat besar, sebagian besar fitur dapat dikategorikan:
-
-| Kategori `highway` | Deskripsi singkat                                             | Contoh nama jalan                          |
-|--------------------|----------------------------------------------------------------|---------------------------------------------|
-| `primary`          | Jalan utama penghubung antarwilayah                            | Jalan Kolonel Masturi                       |
-| `secondary`        | Jalan arteri tingkat menengah                                  | Jalan Terusan Kolonel Masturi               |
-| `tertiary`         | Jalan kolektor di dalam kecamatan/kelurahan                    | Jalan Sersan Bajuri                         |
-| `residential`      | Jalan lingkungan permukiman                                    | Jalan Kampung Gunung Mas, Jalan Puspa Raya  |
-| `service`          | Jalan akses terbatas (misal ke fasilitas atau area parkir)     | Jalan menuju restoran/fasilitas wisata      |
-| `track` / `path`   | Jalur pertanian atau pejalan kaki                              | Jalur kebun atau setapak kampung            |
 
